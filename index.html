@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kopi Order</title>
+<meta name="theme-color" content="#6b3e26" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1410" media="(prefers-color-scheme: dark)">
+<style>
+:root {
+  --bg: #f6eedd;
+  --card: #fffaf0;
+  --ink: #2b1a10;
+  --muted: #7a6152;
+  --brown: #6b3e26;
+  --brown-2: #8a5a3b;
+  --line: #e3d3b8;
+  --red: #b8322a;
+  --red-ink: #ffffff;
+  --chip: #f1e5cf;
+  --chip-on: #6b3e26;
+  --chip-on-ink: #fffaf0;
+  --green: #2f7a4b;
+  --shadow: 0 1px 2px rgba(60,30,10,.08), 0 4px 14px rgba(60,30,10,.06);
+  --radius: 14px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1410;
+    --card: #2a1f18;
+    --ink: #f3e7d3;
+    --muted: #bba48f;
+    --brown: #d8a77c;
+    --brown-2: #c08a5f;
+    --line: #463529;
+    --red: #e0574c;
+    --red-ink: #1c1410;
+    --chip: #3a2c22;
+    --chip-on: #d8a77c;
+    --chip-on-ink: #1c1410;
+    --green: #6cc08b;
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 17px/1.4 var(--font);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+button { font: inherit; color: inherit; }
+header.top {
+  background: var(--brown); color: #fffaf0;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
+  border-bottom: 5px solid var(--red);
+}
+@media (prefers-color-scheme: dark) { header.top { background: #3a2619; color: var(--ink); } }
+header.top h1 { margin: 0; font: 700 1.5rem/1.1 var(--serif); letter-spacing: .3px; }
+header.top p { margin: 4px 0 0; opacity: .85; font-size: .9rem; }
+main { max-width: 640px; margin: 0 auto; padding: 12px 12px 40px; }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 14px; margin: 12px 0;
+}
+.card > h2 { margin: 0 0 10px; font: 700 1.2rem/1.2 var(--serif); color: var(--brown); display:flex; align-items:center; gap:8px; }
+.card > h2 .count { font: 600 .85rem var(--font); background: var(--red); color: var(--red-ink); border-radius: 999px; padding: 2px 9px; }
+.group { margin: 12px 0 0; border: 0; padding: 0; }
+.group legend, .label { font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; padding: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  min-height: 48px; padding: 8px 14px; border-radius: 12px;
+  border: 2px solid transparent; background: var(--chip); color: var(--ink);
+  cursor: pointer; display: inline-flex; flex-direction: column; justify-content: center; align-items: flex-start;
+  text-align: left; line-height: 1.15; flex: 1 1 auto; min-width: 84px;
+  -webkit-tap-highlight-color: transparent; transition: background .12s, transform .06s;
+}
+.chip small { font-size: .72rem; color: var(--muted); font-weight: 500; margin-top: 2px; }
+.chip b { font-weight: 700; }
+.chip:active { transform: scale(.97); }
+.chip[aria-pressed="true"] { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+.chip[aria-pressed="true"] small { color: var(--chip-on-ink); opacity: .8; }
+.chip:disabled { opacity: .38; cursor: not-allowed; text-decoration: line-through; }
+.chip:focus-visible, .btn:focus-visible, input:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+.hint { font-size: .82rem; color: var(--muted); margin: 6px 0 0; }
+.hint.warn { color: var(--red); font-weight: 600; }
+
+.quick { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.quick .chip { flex: 0 0 auto; min-width: 0; white-space: nowrap; background: transparent; border-color: var(--brown-2); }
+
+.preview {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--card); border: 2px solid var(--brown); border-radius: var(--radius);
+  padding: 12px 14px; margin: 12px 0; box-shadow: var(--shadow);
+}
+.preview .name { font: 800 1.45rem/1.15 var(--serif); color: var(--ink); word-break: break-word; }
+.preview .desc { color: var(--muted); font-size: .92rem; margin-top: 3px; }
+.preview .edit-tag { display:inline-block; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color: var(--red); margin-bottom: 2px; }
+
+.row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px; }
+.field { flex: 1 1 180px; }
+input[type="text"] {
+  width: 100%; min-height: 50px; border-radius: 12px; border: 2px solid var(--line);
+  background: var(--bg); color: var(--ink); padding: 10px 12px; font-size: 1rem;
+}
+.stepper { display: flex; align-items: center; border: 2px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); }
+.stepper button { width: 52px; height: 50px; border: 0; background: transparent; font-size: 1.5rem; font-weight: 700; cursor: pointer; color: var(--brown); }
+.stepper button:disabled { opacity: .3; }
+.stepper output { min-width: 40px; text-align: center; font-weight: 800; font-size: 1.2rem; }
+
+.btn {
+  min-height: 52px; border-radius: 12px; border: 2px solid var(--brown); background: transparent;
+  color: var(--brown); font-weight: 700; padding: 10px 16px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(.98); }
+.btn.primary { background: var(--red); border-color: var(--red); color: var(--red-ink); }
+.btn.dark { background: var(--brown); border-color: var(--brown); color: var(--chip-on-ink); }
+.btn.danger { border-color: var(--red); color: var(--red); }
+.btn.block { width: 100%; font-size: 1.1rem; }
+.btn.small { min-height: 44px; padding: 6px 12px; font-size: .9rem; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.actions > .btn { flex: 1 1 auto; }
+
+ul.list { list-style: none; margin: 0; padding: 0; }
+ul.list li {
+  display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line);
+}
+ul.list li:last-child { border-bottom: 0; }
+ul.list li.editing { background: color-mix(in srgb, var(--red) 10%, transparent); border-radius: 10px; padding-left: 6px; }
+.qty-badge { flex: 0 0 auto; min-width: 42px; height: 42px; border-radius: 10px; background: var(--chip); display:flex; align-items:center; justify-content:center; font-weight: 800; }
+.li-main { flex: 1 1 auto; min-width: 0; }
+.li-main .who { font-size: .8rem; color: var(--muted); font-weight: 600; }
+.li-main .what { font-weight: 700; word-break: break-word; }
+.li-btns { display: flex; gap: 6px; flex: 0 0 auto; }
+.icon-btn { width: 46px; height: 46px; border-radius: 10px; border: 2px solid var(--line); background: transparent; cursor: pointer; font-size: 1.1rem; display:flex; align-items:center; justify-content:center; }
+.icon-btn.del { color: var(--red); }
+.empty { color: var(--muted); text-align: center; padding: 18px 0; }
+
+.tabs { display: flex; background: var(--chip); border-radius: 12px; padding: 4px; gap: 4px; }
+.tabs button { flex: 1; min-height: 44px; border: 0; border-radius: 9px; background: transparent; font-weight: 700; cursor: pointer; color: var(--muted); }
+.tabs button[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: var(--shadow); }
+.summary { margin-top: 12px; }
+.summary h3 { margin: 14px 0 6px; font: 700 .85rem var(--font); text-transform: uppercase; letter-spacing: .1em; color: var(--red); }
+.summary h3:first-child { margin-top: 4px; }
+.summary .line { display: flex; gap: 10px; padding: 5px 0; font-size: 1.08rem; }
+.summary .line .n { font-weight: 800; min-width: 2.6em; color: var(--brown); }
+.summary .line .t { font-weight: 600; }
+.summary .sub { color: var(--muted); font-size: .88rem; padding: 2px 0 0; }
+.summary .total { margin-top: 12px; padding-top: 10px; border-top: 2px solid var(--brown); font-weight: 800; font-size: 1.15rem; }
+.summary .person { font-weight: 700; }
+
+/* Overlays */
+.overlay { position: fixed; inset: 0; z-index: 50; display: none; }
+.overlay.open { display: block; }
+.scrim { position: absolute; inset: 0; background: rgba(20,10,5,.55); }
+.dialog {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  width: min(92vw, 400px); background: var(--card); border-radius: 18px; padding: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.35); border-top: 6px solid var(--red);
+}
+.dialog h2 { margin: 0 0 6px; font: 700 1.25rem var(--serif); }
+.dialog p { margin: 0 0 14px; color: var(--muted); }
+.waiter {
+  position: absolute; inset: 0; background: var(--card); color: var(--ink); overflow: auto;
+  bottom: calc(77px + env(safe-area-inset-bottom));
+  padding: calc(16px + env(safe-area-inset-top)) 20px 24px;
+}
+.waiter .w-sec { font: 800 1.1rem var(--font); letter-spacing: .12em; text-transform: uppercase; color: var(--red); margin: 18px 0 6px; border-bottom: 3px solid var(--red); padding-bottom: 4px; }
+.waiter .w-line { font: 800 clamp(1.7rem, 7.5vw, 3rem)/1.2 var(--font); margin: 8px 0; display: flex; gap: .4em; }
+.waiter .w-line .n { color: var(--brown); min-width: 1.6em; }
+.waiter .w-total { font: 800 clamp(1.4rem, 6vw, 2.2rem) var(--font); margin-top: 20px; padding-top: 10px; border-top: 3px solid var(--ink); }
+.w-foot { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); background: var(--card); border-top: 1px solid var(--line); display: flex; justify-content: center; }
+.w-foot .btn { max-width: 360px; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(30px);
+  background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 60; max-width: 90vw; text-align: center;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>☕ Kopi Order</h1>
+  <p>Build the drinks, then read the summary to the uncle.</p>
+</header>
+
+<main>
+  <section class="card" aria-labelledby="h-builder">
+    <h2 id="h-builder">Drink builder</h2>
+
+    <div class="label" id="lbl-quick">Common orders</div>
+    <div class="quick" id="quick" role="group" aria-labelledby="lbl-quick"></div>
+
+    <div class="preview" id="preview" aria-live="polite">
+      <span class="edit-tag" id="editTag" hidden>Editing drink</span>
+      <div class="name" id="pvName">Kopi</div>
+      <div class="desc" id="pvDesc"></div>
+    </div>
+
+    <div id="groups"></div>
+
+    <div class="row">
+      <div class="field">
+        <label class="label" for="person">Name (optional)</label>
+        <input type="text" id="person" placeholder="e.g. Ali" autocomplete="off" autocapitalize="words" enterkeyhint="done" maxlength="40">
+      </div>
+      <div>
+        <div class="label" id="lbl-qty">Quantity</div>
+        <div class="stepper" role="group" aria-labelledby="lbl-qty">
+          <button type="button" id="qtyMinus" aria-label="Fewer">−</button>
+          <output id="qty" aria-live="polite">1</output>
+          <button type="button" id="qtyPlus" aria-label="More">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn primary block" id="addBtn">＋ Add to order</button>
+      <button type="button" class="btn" id="cancelEdit" hidden>Cancel edit</button>
+      <button type="button" class="btn" id="resetBtn">Reset options</button>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-order">
+    <h2 id="h-order">Order <span class="count" id="orderCount">0</span></h2>
+    <ul class="list" id="orderList"></ul>
+    <div class="actions">
+      <button type="button" class="btn dark block" id="genBtn">Generate summary</button>
+      <button type="button" class="btn danger" id="clearBtn">Clear all</button>
+    </div>
+  </section>
+
+  <section class="card" id="summaryCard" hidden aria-labelledby="h-summary">
+    <h2 id="h-summary">Waiter summary</h2>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="tabDrink" aria-selected="true">By drink</button>
+      <button type="button" role="tab" id="tabPerson" aria-selected="false">By person</button>
+    </div>
+    <div class="summary" id="summary"></div>
+    <div class="actions">
+      <button type="button" class="btn primary block" id="waiterBtn">📢 Show to waiter</button>
+      <button type="button" class="btn" id="copyBtn">Copy summary</button>
+      <button type="button" class="btn" id="shareBtn" hidden>Share</button>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="confirmOv" role="dialog" aria-modal="true" aria-labelledby="cf-h">
+  <div class="scrim" data-close></div>
+  <div class="dialog">
+    <h2 id="cf-h">Clear the whole order?</h2>
+    <p id="cf-p">This removes every drink. It can't be undone.</p>
+    <div class="actions">
+      <button type="button" class="btn" id="cfNo">Keep order</button>
+      <button type="button" class="btn primary" id="cfYes">Yes, clear all</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="waiterOv" role="dialog" aria-modal="true" aria-label="Order for waiter">
+  <div class="waiter" id="waiterBody"></div>
+  <div class="w-foot"><button type="button" class="btn dark block" id="waiterClose">Close</button></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Drink model ---------- */
+  var OPTIONS = {
+    drink: [
+      { v: 'kopi', word: 'Kopi', sub: 'coffee' },
+      { v: 'teh',  word: 'Teh',  sub: 'tea' },
+      { v: 'cham', word: 'Cham', sub: 'Yuan Yang' }
+    ],
+    milk: [
+      { v: '',  word: 'Condensed', sub: 'default' },
+      { v: 'O', word: 'O', sub: 'no milk, sugar' },
+      { v: 'C', word: 'C', sub: 'evap milk + sugar' }
+    ],
+    strength: [
+      { v: '',     word: 'Normal', sub: 'default' },
+      { v: 'Gao',  word: 'Gao',  sub: 'thick' },
+      { v: 'Po',   word: 'Po',   sub: 'thin' },
+      { v: 'Di Lo', word: 'Di Lo', sub: 'extra thick' }
+    ],
+    sweet: [
+      { v: '',         word: 'Normal', sub: 'default' },
+      { v: 'Siew Dai', word: 'Siew Dai', sub: 'less sweet' },
+      { v: 'Ga Dai',   word: 'Ga Dai', sub: 'more sweet' },
+      { v: 'Kosong',   word: 'Kosong', sub: 'no sugar' }
+    ],
+    temp: [
+      { v: '',     word: 'Hot',  sub: 'default' },
+      { v: 'Peng', word: 'Peng', sub: 'iced' }
+    ],
+    take: [
+      { v: '',       word: 'Dine-in', sub: 'default' },
+      { v: 'Da Bao', word: 'Da Bao', sub: 'takeaway' }
+    ],
+    extra: [
+      { v: '',       word: 'None', sub: '' },
+      { v: 'Tarik',  word: 'Tarik', sub: 'pulled', only: 'teh' },
+      { v: 'Halia',  word: 'Halia', sub: 'ginger', only: 'teh' },
+      { v: 'Gu You', word: 'Gu You', sub: 'butter', only: 'kopi' }
+    ]
+  };
+  var GROUPS = [
+    ['drink', 'Drink'], ['milk', 'Milk'], ['extra', 'Extra'], ['strength', 'Strength'],
+    ['sweet', 'Sweetness'], ['temp', 'Temperature'], ['take', 'Dine-in / Da Bao']
+  ];
+  var DRINK_WORD = { kopi: 'Kopi', teh: 'Teh', cham: 'Cham' };
+
+  function defaults() {
+    return { drink: 'kopi', milk: '', extra: '', strength: '', sweet: '', temp: '', take: '' };
+  }
+
+  // Is option value `v` of group `g` allowed given drink state `d`?
+  function allowed(g, v, d) {
+    if (g === 'sweet' && v === 'Kosong') return d.milk === 'O' || d.milk === 'C';
+    if (g === 'extra' && v) {
+      var opt = OPTIONS.extra.filter(function (o) { return o.v === v; })[0];
+      return !!opt && opt.only === d.drink;
+    }
+    return true;
+  }
+
+  // Fix up a drink so it never holds a forbidden combination.
+  function normalize(d) {
+    var out = Object.assign(defaults(), d);
+    var notes = [];
+    if (!DRINK_WORD[out.drink]) out.drink = 'kopi';
+    Object.keys(OPTIONS).forEach(function (g) {
+      if (g === 'drink') return;
+      var ok = OPTIONS[g].some(function (o) { return o.v === out[g]; });
+      if (!ok) out[g] = '';
+    });
+    if (!allowed('sweet', out.sweet, out)) { out.sweet = ''; notes.push('kosong'); }
+    if (!allowed('extra', out.extra, out)) { out.extra = ''; notes.push('extra'); }
+    return { drink: out, notes: notes };
+  }
+
+  // [Drink] [Milk] [Extra] [Strength] [Sweetness] [Peng] [Da Bao]
+  function drinkName(d) {
+    return [DRINK_WORD[d.drink], d.milk, d.extra, d.strength, d.sweet, d.temp, d.take]
+      .filter(Boolean).join(' ');
+  }
+
+  function describe(d) {
+    var base = { kopi: 'coffee', teh: 'tea', cham: 'coffee-and-tea mix' }[d.drink];
+    if (d.extra === 'Tarik') base = 'pulled tea';
+    if (d.extra === 'Halia') base = 'ginger tea';
+    if (d.extra === 'Gu You') base = 'coffee with butter';
+    var adj = [];
+    var str = { Gao: 'thick', Po: 'thin', 'Di Lo': 'extra-thick' }[d.strength];
+    if (str) adj.push(str);
+    adj.push(d.temp === 'Peng' ? 'iced' : 'hot');
+    var parts = [adj.join(' ') + ' ' + base];
+    parts.push({ '': 'condensed milk', O: 'no milk', C: 'evaporated milk' }[d.milk]);
+    var sw = { 'Siew Dai': 'less sweet', 'Ga Dai': 'more sweet', Kosong: 'no sugar' }[d.sweet];
+    if (sw) parts.push(sw);
+    else if (d.milk) parts.push('with sugar');
+    if (d.take) parts.push('takeaway');
+    return parts.join(', ');
+  }
+
+  function rank(g, v) {
+    for (var i = 0; i < OPTIONS[g].length; i++) if (OPTIONS[g][i].v === v) return i;
+    return 99;
+  }
+  function compareDrinks(a, b) {
+    var keys = ['drink', 'milk', 'extra', 'strength', 'sweet', 'temp', 'take'];
+    for (var i = 0; i < keys.length; i++) {
+      var d = rank(keys[i], a[keys[i]]) - rank(keys[i], b[keys[i]]);
+      if (d) return d;
+    }
+    return 0;
+  }
+
+  // Group identical drinks, split by dine-in / da bao, sorted Kopi → Teh → Cham.
+  function buildSummary(items) {
+    var sections = [
+      { key: '', title: 'Dine-in', lines: [], total: 0 },
+      { key: 'Da Bao', title: 'Da Bao (takeaway)', lines: [], total: 0 }
+    ];
+    items.forEach(function (it) {
+      var sec = sections[it.take ? 1 : 0];
+      var name = drinkName(it);
+      var line = sec.lines.filter(function (l) { return l.name === name; })[0];
+      if (!line) { line = { name: name, qty: 0, sample: it }; sec.lines.push(line); }
+      line.qty += it.qty;
+      sec.total += it.qty;
+    });
+    sections.forEach(function (s) {
+      s.lines.sort(function (a, b) { return compareDrinks(a.sample, b.sample) || a.name.localeCompare(b.name); });
+    });
+    var active = sections.filter(function (s) { return s.lines.length; });
+    return { sections: active, total: sections[0].total + sections[1].total };
+  }
+
+  function buildByPerson(items) {
+    var map = {}, order = [];
+    items.forEach(function (it) {
+      var who = (it.name || '').trim();
+      var k = who.toLowerCase();
+      if (!map[k]) { map[k] = { who: who, drinks: [] }; order.push(k); }
+      map[k].drinks.push(it);
+    });
+    order.sort(function (a, b) {
+      if (!a) return 1; if (!b) return -1;
+      return a.localeCompare(b);
+    });
+    return order.map(function (k) {
+      var p = map[k];
+      p.drinks = p.drinks.slice().sort(compareDrinks);
+      return p;
+    });
+  }
+
+  function plural(n) { return n + (n === 1 ? ' drink' : ' drinks'); }
+
+  function summaryText(items, view) {
+    var out = [];
+    if (view === 'person') {
+      buildByPerson(items).forEach(function (p) {
+        p.drinks.forEach(function (d) {
+          out.push((p.who || '(no name)') + ' — ' + (d.qty > 1 ? d.qty + ' × ' : '') + drinkName(d));
+        });
+      });
+      out.push('');
+      out.push('Total: ' + plural(totalQty(items)));
+      return out.join('\n');
+    }
+    var s = buildSummary(items);
+    s.sections.forEach(function (sec, i) {
+      if (i) out.push('');
+      out.push(sec.title.toUpperCase());
+      sec.lines.forEach(function (l) { out.push(l.qty + ' × ' + l.name); });
+      if (s.sections.length > 1) out.push('(' + plural(sec.total) + ')');
+    });
+    out.push('');
+    out.push('Total: ' + plural(s.total));
+    return out.join('\n');
+  }
+
+  function totalQty(items) { return items.reduce(function (n, it) { return n + it.qty; }, 0); }
+
+  /* ---------- State ---------- */
+  var KEY = 'kopi-order-v1';
+  var state = {
+    builder: defaults(), name: '', qty: 1,
+    items: [], editingId: null, view: 'drink', showSummary: false, nextId: 1
+  };
+  function load() {
+    try {
+      var s = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!s) return;
+      state.builder = normalize(s.builder || {}).drink;
+      state.name = typeof s.name === 'string' ? s.name : '';
+      state.qty = clampQty(s.qty);
+      state.items = Array.isArray(s.items) ? s.items.map(function (it) {
+        var d = normalize(it).drink;
+        d.id = it.id; d.name = typeof it.name === 'string' ? it.name : ''; d.qty = clampQty(it.qty);
+        return d;
+      }).filter(function (it) { return it.id != null; }) : [];
+      state.nextId = Math.max(s.nextId || 1, 1 + state.items.reduce(function (m, it) { return Math.max(m, it.id); }, 0));
+      state.editingId = state.items.some(function (it) { return it.id === s.editingId; }) ? s.editingId : null;
+      state.view = s.view === 'person' ? 'person' : 'drink';
+      state.showSummary = !!s.showSummary && state.items.length > 0;
+    } catch (e) { /* ignore bad storage */ }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function clampQty(q) { q = parseInt(q, 10); return isNaN(q) ? 1 : Math.min(99, Math.max(1, q)); }
+
+  /* ---------- DOM helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'text') n.textContent = attrs[k];
+      else if (k === 'class') n.className = attrs[k];
+      else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), attrs[k]);
+      else n.setAttribute(k, attrs[k]);
+    });
+    (kids || []).forEach(function (c) { if (c != null) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  var toastTimer;
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  /* ---------- Builder ---------- */
+  function setOption(g, v) {
+    var next = Object.assign({}, state.builder); next[g] = v;
+    var r = normalize(next);
+    state.builder = r.drink;
+    if (r.notes.indexOf('kosong') >= 0) toast('Kosong needs O or C — sweetness set back to Normal');
+    if (r.notes.indexOf('extra') >= 0) toast('That extra doesn’t go with ' + DRINK_WORD[r.drink.drink] + ' — removed');
+    save(); renderBuilder();
+  }
+
+  function renderGroups() {
+    var wrap = $('groups'); wrap.innerHTML = '';
+    GROUPS.forEach(function (gp) {
+      var g = gp[0];
+      var fs = el('fieldset', { class: 'group', 'data-group': g });
+      fs.appendChild(el('legend', { text: gp[1] }));
+      var chips = el('div', { class: 'chips' });
+      fs.appendChild(chips);
+      fs.appendChild(el('p', { class: 'hint', 'data-hint': g, hidden: '' }));
+      wrap.appendChild(fs);
+    });
+  }
+
+  function renderBuilder() {
+    var d = state.builder;
+    GROUPS.forEach(function (gp) {
+      var g = gp[0];
+      var fs = document.querySelector('[data-group="' + g + '"]');
+      var chips = fs.querySelector('.chips'); chips.innerHTML = '';
+      var opts = OPTIONS[g];
+      if (g === 'extra') opts = opts.filter(function (o) { return !o.only || o.only === d.drink; });
+      opts.forEach(function (o) {
+        var ok = allowed(g, o.v, d);
+        var b = el('button', {
+          type: 'button', class: 'chip', 'aria-pressed': String(d[g] === o.v),
+          'data-g': g, 'data-v': o.v,
+          onclick: function () { if (ok) setOption(g, o.v); }
+        }, [el('b', { text: o.word }), o.sub ? el('small', { text: o.sub }) : null]);
+        if (!ok) { b.disabled = true; b.title = 'Only with O or C'; }
+        chips.appendChild(b);
+      });
+      var hint = fs.querySelector('[data-hint]');
+      var msg = '', warn = false;
+      if (g === 'sweet' && !d.milk) { msg = 'Kosong (no sugar) only works with O or C — condensed milk is already sweet.'; }
+      if (g === 'extra') {
+        msg = d.drink === 'cham' ? 'No extras for Cham.' : d.drink === 'teh' ? 'Tarik = pulled & frothy, Halia = ginger.' : 'Gu You = a knob of butter in the kopi.';
+      }
+      hint.textContent = msg; hint.hidden = !msg; hint.classList.toggle('warn', warn);
+    });
+    $('pvName').textContent = drinkName(d);
+    $('pvDesc').textContent = describe(d);
+    $('person').value = state.name;
+    $('qty').textContent = state.qty;
+    $('qtyMinus').disabled = state.qty <= 1;
+    $('qtyPlus').disabled = state.qty >= 99;
+    var editing = state.editingId != null;
+    $('editTag').hidden = !editing;
+    $('addBtn').textContent = editing ? '✓ Update drink' : '＋ Add to order';
+    $('cancelEdit').hidden = !editing;
+  }
+
+  var QUICK = [
+    { drink: 'kopi' },
+    { drink: 'kopi', milk: 'O' },
+    { drink: 'kopi', milk: 'C' },
+    { drink: 'teh' },
+    { drink: 'teh', milk: 'O' },
+    { drink: 'teh', extra: 'Tarik' },
+    { drink: 'kopi', milk: 'O', sweet: 'Kosong', temp: 'Peng' },
+    { drink: 'cham' }
+  ];
+  function renderQuick() {
+    var q = $('quick');
+    QUICK.forEach(function (preset) {
+      var d = normalize(preset).drink;
+      q.appendChild(el('button', {
+        type: 'button', class: 'chip',
+        onclick: function () {
+          state.builder = d; save(); renderBuilder();
+          toast(drinkName(d) + ' selected — tap Add to order');
+        }
+      }, [el('b', { text: drinkName(d) })]));
+    });
+  }
+
+  function resetBuilder() {
+    state.builder = defaults(); state.qty = 1; state.name = ''; state.editingId = null;
+  }
+
+  function addOrUpdate() {
+    var d = normalize(state.builder).drink;
+    d.name = state.name.trim(); d.qty = state.qty;
+    if (state.editingId != null) {
+      var idx = state.items.findIndex(function (it) { return it.id === state.editingId; });
+      if (idx >= 0) { d.id = state.editingId; state.items[idx] = d; toast('Updated: ' + drinkName(d)); }
+    } else {
+      d.id = state.nextId++;
+      state.items.push(d);
+      toast('Added ' + (d.qty > 1 ? d.qty + ' × ' : '') + drinkName(d));
+    }
+    // Keep drink options for the next person (often the same), clear name & qty.
+    state.editingId = null; state.name = ''; state.qty = 1;
+    save(); renderAll();
+  }
+
+  /* ---------- Order list ---------- */
+  function renderOrder() {
+    var ul = $('orderList'); ul.innerHTML = '';
+    $('orderCount').textContent = totalQty(state.items);
+    if (!state.items.length) {
+      ul.appendChild(el('li', { class: 'empty', text: 'No drinks yet. Build one above and tap “Add to order”.' }));
+    }
+    state.items.forEach(function (it) {
+      ul.appendChild(el('li', { class: it.id === state.editingId ? 'editing' : '', 'data-id': it.id }, [
+        el('div', { class: 'qty-badge', text: '×' + it.qty }),
+        el('div', { class: 'li-main' }, [
+          el('div', { class: 'who', text: it.name || 'No name' }),
+          el('div', { class: 'what', text: drinkName(it) })
+        ]),
+        el('div', { class: 'li-btns' }, [
+          el('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Edit ' + drinkName(it), title: 'Edit',
+            onclick: function () { startEdit(it.id); } }, ['✎']),
+          el('button', { type: 'button', class: 'icon-btn del', 'aria-label': 'Delete ' + drinkName(it), title: 'Delete',
+            onclick: function () { removeItem(it.id); } }, ['✕'])
+        ])
+      ]));
+    });
+    $('genBtn').disabled = $('clearBtn').disabled = !state.items.length;
+  }
+
+  function startEdit(id) {
+    var it = state.items.filter(function (x) { return x.id === id; })[0];
+    if (!it) return;
+    state.editingId = id;
+    state.builder = normalize(it).drink;
+    state.name = it.name; state.qty = it.qty;
+    save(); renderAll();
+    $('preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function removeItem(id) {
+    var it = state.items.filter(function (x) { return x.id === id; })[0];
+    state.items = state.items.filter(function (x) { return x.id !== id; });
+    if (state.editingId === id) resetBuilder();
+    if (!state.items.length) state.showSummary = false;
+    save(); renderAll();
+    if (it) toast('Removed ' + drinkName(it));
+  }
+
+  /* ---------- Summary ---------- */
+  function renderSummary() {
+    var card = $('summaryCard');
+    card.hidden = !(state.showSummary && state.items.length);
+    if (card.hidden) return;
+    $('tabDrink').setAttribute('aria-selected', String(state.view === 'drink'));
+    $('tabPerson').setAttribute('aria-selected', String(state.view === 'person'));
+    var box = $('summary'); box.innerHTML = '';
+    if (state.view === 'drink') {
+      var s = buildSummary(state.items);
+      s.sections.forEach(function (sec) {
+        box.appendChild(el('h3', { text: sec.title }));
+        sec.lines.forEach(function (l) {
+          box.appendChild(el('div', { class: 'line' }, [el('span', { class: 'n', text: l.qty + ' ×' }), el('span', { class: 't', text: l.name })]));
+        });
+        if (s.sections.length > 1) box.appendChild(el('div', { class: 'sub', text: plural(sec.total) }));
+      });
+      box.appendChild(el('div', { class: 'total', text: 'Total: ' + plural(s.total) }));
+    } else {
+      buildByPerson(state.items).forEach(function (p) {
+        p.drinks.forEach(function (d) {
+          box.appendChild(el('div', { class: 'line' }, [
+            el('span', { class: 't' }, [
+              el('span', { class: 'person', text: p.who || '(no name)' }), ' — ',
+              (d.qty > 1 ? d.qty + ' × ' : '') + drinkName(d)
+            ])
+          ]));
+        });
+      });
+      box.appendChild(el('div', { class: 'total', text: 'Total: ' + plural(totalQty(state.items)) }));
+    }
+    $('shareBtn').hidden = !navigator.share;
+  }
+
+  function openWaiter() {
+    var body = $('waiterBody'); body.innerHTML = '';
+    if (state.view === 'person') {
+      buildByPerson(state.items).forEach(function (p) {
+        body.appendChild(el('div', { class: 'w-sec', text: p.who || '(no name)' }));
+        p.drinks.forEach(function (d) {
+          body.appendChild(el('div', { class: 'w-line' }, [el('span', { class: 'n', text: d.qty + '×' }), el('span', { text: drinkName(d) })]));
+        });
+      });
+      body.appendChild(el('div', { class: 'w-total', text: 'Total: ' + plural(totalQty(state.items)) }));
+    } else {
+      var s = buildSummary(state.items);
+      s.sections.forEach(function (sec) {
+        body.appendChild(el('div', { class: 'w-sec', text: sec.title + ' · ' + sec.total }));
+        sec.lines.forEach(function (l) {
+          body.appendChild(el('div', { class: 'w-line' }, [el('span', { class: 'n', text: l.qty + '×' }), el('span', { text: l.name })]));
+        });
+      });
+      body.appendChild(el('div', { class: 'w-total', text: 'Total: ' + plural(s.total) }));
+    }
+    var ov = $('waiterOv'); ov.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (ov.requestFullscreen) ov.requestFullscreen().catch(function () {});
+    else if (ov.webkitRequestFullscreen) try { ov.webkitRequestFullscreen(); } catch (e) {}
+    $('waiterClose').focus();
+  }
+  function closeWaiter() {
+    $('waiterOv').classList.remove('open');
+    document.body.style.overflow = '';
+    var fe = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    $('waiterBtn').focus();
+  }
+
+  function copyText(text) {
+    function fallback() {
+      var ta = el('textarea', { readonly: '' }); ta.value = text;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove();
+      toast(ok ? 'Summary copied' : 'Couldn’t copy — long-press the summary to copy');
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { toast('Summary copied'); }, fallback);
+    } else fallback();
+  }
+
+  /* ---------- Confirm dialog ---------- */
+  var lastFocus;
+  function openConfirm() {
+    lastFocus = document.activeElement;
+    $('cf-p').textContent = 'This removes all ' + plural(totalQty(state.items)) + '. It can’t be undone.';
+    $('confirmOv').classList.add('open'); $('cfNo').focus();
+  }
+  function closeConfirm() { $('confirmOv').classList.remove('open'); if (lastFocus) lastFocus.focus(); }
+
+  /* ---------- Wire up ---------- */
+  function renderAll() { renderBuilder(); renderOrder(); renderSummary(); }
+
+  function init() {
+    load();
+    renderGroups(); renderQuick(); renderAll();
+    $('person').addEventListener('input', function (e) { state.name = e.target.value; save(); });
+    $('person').addEventListener('keydown', function (e) { if (e.key === 'Enter') e.target.blur(); });
+    $('qtyMinus').onclick = function () { state.qty = clampQty(state.qty - 1); save(); renderBuilder(); };
+    $('qtyPlus').onclick = function () { state.qty = clampQty(state.qty + 1); save(); renderBuilder(); };
+    $('addBtn').onclick = addOrUpdate;
+    $('cancelEdit').onclick = function () { resetBuilder(); save(); renderAll(); };
+    $('resetBtn').onclick = function () { state.builder = defaults(); state.qty = 1; save(); renderBuilder(); };
+    $('genBtn').onclick = function () {
+      state.showSummary = true; save(); renderSummary();
+      $('summaryCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    $('clearBtn').onclick = openConfirm;
+    $('cfNo').onclick = closeConfirm;
+    document.querySelector('#confirmOv [data-close]').onclick = closeConfirm;
+    $('cfYes').onclick = function () {
+      state.items = []; state.showSummary = false; resetBuilder();
+      save(); closeConfirm(); renderAll(); toast('Order cleared');
+    };
+    $('tabDrink').onclick = function () { state.view = 'drink'; save(); renderSummary(); };
+    $('tabPerson').onclick = function () { state.view = 'person'; save(); renderSummary(); };
+    $('copyBtn').onclick = function () { copyText(summaryText(state.items, state.view)); };
+    $('shareBtn').onclick = function () {
+      navigator.share({ title: 'Kopi order', text: summaryText(state.items, state.view) })
+        .catch(function (e) { if (e && e.name !== 'AbortError') copyText(summaryText(state.items, state.view)); });
+    };
+    $('waiterBtn').onclick = openWaiter;
+    $('waiterClose').onclick = closeWaiter;
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if ($('waiterOv').classList.contains('open')) closeWaiter();
+      else if ($('confirmOv').classList.contains('open')) closeConfirm();
+    });
+    document.addEventListener('fullscreenchange', function () {
+      if (!document.fullscreenElement && $('waiterOv').classList.contains('open')) closeWaiter();
+    });
+  }
+
+  // Exposed for testing only.
+  window.KopiOrder = {
+    drinkName: drinkName, describe: describe, normalize: normalize, allowed: allowed,
+    buildSummary: buildSummary, buildByPerson: buildByPerson, summaryText: summaryText, state: function () { return state; }
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>
