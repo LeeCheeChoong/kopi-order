@@ -169,14 +169,13 @@ ul.list li.editing { background: color-mix(in srgb, var(--red) 10%, transparent)
 .dialog p { margin: 0 0 14px; color: var(--muted); }
 .waiter {
   position: absolute; inset: 0; background: var(--card); color: var(--ink); overflow: auto;
-  bottom: calc(77px + env(safe-area-inset-bottom));
-  padding: calc(16px + env(safe-area-inset-top)) 20px 24px;
+  padding: calc(16px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
 }
 .waiter .w-sec { font: 800 1.1rem var(--font); letter-spacing: .12em; text-transform: uppercase; color: var(--red); margin: 18px 0 6px; border-bottom: 3px solid var(--red); padding-bottom: 4px; }
 .waiter .w-line { font: 800 clamp(1.7rem, 7.5vw, 3rem)/1.2 var(--font); margin: 8px 0; display: flex; gap: .4em; }
 .waiter .w-line .n { color: var(--brown); min-width: 1.6em; }
 .waiter .w-total { font: 800 clamp(1.4rem, 6vw, 2.2rem) var(--font); margin-top: 20px; padding-top: 10px; border-top: 3px solid var(--ink); }
-.w-foot { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); background: var(--card); border-top: 1px solid var(--line); display: flex; justify-content: center; }
+.w-foot { margin-top: 20px; display: flex; justify-content: center; }
 .w-foot .btn { max-width: 360px; }
 
 .toast {
@@ -268,8 +267,10 @@ ul.list li.editing { background: color-mix(in srgb, var(--red) 10%, transparent)
 </div>
 
 <div class="overlay" id="waiterOv" role="dialog" aria-modal="true" aria-label="Order for waiter">
-  <div class="waiter" id="waiterBody"></div>
-  <div class="w-foot"><button type="button" class="btn dark block" id="waiterClose">Close</button></div>
+  <div class="waiter">
+    <div id="waiterBody"></div>
+    <div class="w-foot"><button type="button" class="btn dark block" id="waiterClose">Close</button></div>
+  </div>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -711,7 +712,8 @@ ul.list li.editing { background: color-mix(in srgb, var(--red) 10%, transparent)
     document.body.style.overflow = 'hidden';
     if (ov.requestFullscreen) ov.requestFullscreen().catch(function () {});
     else if (ov.webkitRequestFullscreen) try { ov.webkitRequestFullscreen(); } catch (e) {}
-    $('waiterClose').focus();
+    ov.querySelector('.waiter').scrollTop = 0;
+    $('waiterClose').focus({ preventScroll: true });
   }
   function closeWaiter() {
     $('waiterOv').classList.remove('open');
