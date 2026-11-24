@@ -3,15 +3,22 @@
 A phone-friendly web app for taking group orders of Singapore kopitiam drinks
 (Kopi, Teh, Cham) and producing a summary to read out to the waiter.
 
-Everything is in one file, `index.html`: no build step, no libraries.
+Everything is in one file, `public/index.html`: no build step, no libraries.
 The current order is saved in the browser, so a refresh doesn't lose it.
+
+## Files
+
+| File | What it is |
+|---|---|
+| `public/index.html` | The whole app. Edit this file to change the app. |
+| `wrangler.jsonc` | Tells Cloudflare to publish the `public/` folder as the `kopi-order` Worker. |
 
 ## Use it
 
-- **On a computer:** double-click `index.html`.
-- **Online:** upload `index.html` to any static host (e.g. Cloudflare Pages,
-  "Upload assets"), or connect this repository to Cloudflare Pages with no
-  build command and the output directory left as `/`.
+- **On a computer:** double-click `public/index.html`.
+- **Online:** this repository is deployed to the Cloudflare Worker `kopi-order`.
+  With the Worker connected to this repository (Settings → Builds), every push
+  to `main` is published automatically. Only the `public/` folder is uploaded.
 
 ## Features
 

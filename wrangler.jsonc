@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Must match the Worker's name in the Cloudflare dashboard.
+  "name": "kopi-order",
+  "compatibility_date": "2026-11-01",
+  // Static site: only the public/ folder is published. No Worker script.
+  "assets": {
+    "directory": "./public"
+  }
+}
